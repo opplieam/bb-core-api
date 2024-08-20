@@ -23,6 +23,10 @@ go.work.sum
 
 # env file
 .env
+.postgres.env
+
+# bin
+bin
 
 # IDE
 .idea

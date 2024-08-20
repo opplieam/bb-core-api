@@ -1,0 +1,9 @@
+services:
+  pg-core-dev-db:
+    image: postgres:16.2-alpine3.19
+    container_name: pg-core-dev-db
+    restart: unless-stopped
+    ports:
+      - "5433:5432"
+    env_file:
+      - ./.postgres.env
