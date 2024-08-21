@@ -46,3 +46,15 @@ func (s *UserStore) FindUserByEmail(email string) (model.Users, error) {
 	}
 	return dest, nil
 }
+
+func (s *UserStore) IsValidUser(userID int32) error {
+	stmt := SELECT(Users.AllColumns).
+		FROM(Users).
+		WHERE(Users.ID.EQ(Int32(userID)).
+			AND(Users.Active.IS_TRUE()))
+	var dest model.Users
+	if err := stmt.Query(s.DB, &dest); err != nil {
+		return DBTransformError(err)
+	}
+	return nil
+}
