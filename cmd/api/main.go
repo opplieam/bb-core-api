@@ -36,6 +36,9 @@ func run(log *slog.Logger) error {
 	}
 	defer db.Close()
 
+	// setup OAuth provider
+	setupProvider()
+
 	// Setup routes
 	r := setupRoutes(log, db)
 

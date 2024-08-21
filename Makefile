@@ -27,7 +27,7 @@ migrate-down:
     -database=$(DB_DSN) \
     down
 
-dev-db-up: docker-compose-up sleep-3
+dev-db-up: docker-compose-up sleep-3 migrate-up
 dev-db-down: docker-compose-down
 dev-db-reset: dev-db-down sleep-1 dev-db-up
 
