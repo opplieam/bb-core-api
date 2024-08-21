@@ -129,3 +129,8 @@ func (h *Handler) GetTokenHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"access_token": accessToken, "email": user.Email})
 
 }
+
+func (h *Handler) LogoutHandler(c *gin.Context) {
+	c.SetCookie("refresh_token", "", -1, "/", "localhost", false, true)
+	c.JSON(http.StatusOK, gin.H{"msg": "logged out"})
+}

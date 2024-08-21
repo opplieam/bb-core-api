@@ -43,5 +43,6 @@ func setupRoutes(log *slog.Logger, db *sql.DB) *gin.Engine {
 	v1.GET("/auth/:provider", authH.ProviderHandler)
 	v1.GET("/auth/:provider/callback", authH.CallbackHandler)
 	v1.POST("/auth/token", authH.GetTokenHandler)
+	v1.DELETE("/logout", authH.LogoutHandler)
 	return r
 }
