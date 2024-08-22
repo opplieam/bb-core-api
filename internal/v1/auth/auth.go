@@ -133,6 +133,11 @@ func (h *Handler) GetTokenHandler(c *gin.Context) {
 }
 
 func (h *Handler) LogoutHandler(c *gin.Context) {
+	err := gothic.Logout(c.Writer, c.Request)
+	if err != nil {
+		_ = c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
 	c.SetCookie("refresh_token", "", -1, "/", "localhost", false, true)
 	c.JSON(http.StatusOK, gin.H{"msg": "logged out"})
 }

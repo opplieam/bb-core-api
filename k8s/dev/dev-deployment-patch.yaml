@@ -34,6 +34,11 @@ spec:
                 secretKeyRef:
                   name: core-api-secret
                   key: GOOGLE_CLIENT_SECRET
+            - name: SESSION_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: core-api-secret
+                  key: SESSION_SECRET
           resources:
             requests:
               cpu: "500m"
