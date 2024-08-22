@@ -18,7 +18,7 @@ var build = "dev"
 
 func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
-	logger = logger.With("service", "bb-admin-api", "build", build)
+	logger = logger.With("service", "bb-core-api", "build", build)
 
 	if err := run(logger); err != nil {
 		logger.Error("run server", "error", err)
