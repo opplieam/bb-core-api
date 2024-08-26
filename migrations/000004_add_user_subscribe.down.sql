@@ -1,0 +1,1 @@
+DROP TABLE IF EXISTS "user_sub_product";
