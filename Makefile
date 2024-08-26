@@ -88,7 +88,14 @@ migrate-down:
     -database=$(DB_DSN) \
     down
 
-dev-db-up: docker-compose-up sleep-3 migrate-up
+dev-db-seed: dbhelper-build dbhelper-seed-all
+
+dbhelper-build:
+	go build -o ./bin/dbhelper ./cmd/dbhelper
+dbhelper-seed-all:
+	./bin/dbhelper
+
+dev-db-up: docker-compose-up sleep-3 migrate-up dev-db-seed
 dev-db-down: docker-compose-down
 dev-db-reset: dev-db-down sleep-1 dev-db-up
 
