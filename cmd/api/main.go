@@ -39,8 +39,12 @@ func run(log *slog.Logger) error {
 	// setup OAuth provider
 	setupProvider()
 
+	// setup grpc
+	conn, err := setupGRPC(cfg)
+	defer conn.Close()
+
 	// Setup routes
-	r := setupRoutes(log, db)
+	r := setupRoutes(log, db, conn)
 
 	shutdown := make(chan os.Signal, 1)
 	signal.Notify(shutdown, syscall.SIGINT, syscall.SIGTERM)

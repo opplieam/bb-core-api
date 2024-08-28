@@ -8,8 +8,9 @@ import (
 )
 
 type Config struct {
-	Web WebConfig
-	DB  DBConfig
+	Web     WebConfig
+	DB      DBConfig
+	Service ServiceConfig
 }
 
 type WebConfig struct {
@@ -26,6 +27,10 @@ type DBConfig struct {
 	MaxOpenConns int
 	MaxIdleConns int
 	MaxIdleTime  string
+}
+
+type ServiceConfig struct {
+	ProductAddr string
 }
 
 func NewConfig() *Config {
@@ -51,6 +56,9 @@ func NewConfig() *Config {
 			MaxOpenConns: dbMaxOpenConns,
 			MaxIdleConns: dbMaxIdleConns,
 			MaxIdleTime:  utils.GetEnv("DB_MAX_IDLE_TIME", "15m"),
+		},
+		Service: ServiceConfig{
+			ProductAddr: utils.GetEnv("SERVICE_PRODUCT_ADDR", ":3031"),
 		},
 	}
 }

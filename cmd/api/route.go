@@ -11,9 +11,11 @@ import (
 	"github.com/opplieam/bb-core-api/internal/utils"
 	"github.com/opplieam/bb-core-api/internal/v1/auth"
 	"github.com/opplieam/bb-core-api/internal/v1/probe"
+	"github.com/opplieam/bb-core-api/internal/v1/product"
+	"google.golang.org/grpc"
 )
 
-func setupRoutes(log *slog.Logger, db *sql.DB) *gin.Engine {
+func setupRoutes(log *slog.Logger, db *sql.DB, grpcConn *grpc.ClientConn) *gin.Engine {
 	var r *gin.Engine
 	if utils.GetEnv("WEB_SERVICE_ENV", "dev") == "dev" {
 		r = gin.Default()
@@ -38,11 +40,16 @@ func setupRoutes(log *slog.Logger, db *sql.DB) *gin.Engine {
 	v1.GET("/readiness", probeH.ReadinessHandler)
 
 	// TODO: Add some sort of csrf token for login button
+	// TODO: Add refresh token endpoint
 	userStore := store.NewUserStore(db)
 	authH := auth.NewHandler(userStore)
 	v1.GET("/auth/:provider", authH.ProviderHandler)
 	v1.GET("/auth/:provider/callback", authH.CallbackHandler)
 	v1.POST("/auth/token", authH.GetTokenHandler)
 	v1.GET("/auth/:provider/logout", authH.LogoutHandler)
+
+	// TODO: Add authorization middleware
+	productH := product.NewHandler(grpcConn)
+	v1.GET("/product", productH.GetAllProducts)
 	return r
 }
