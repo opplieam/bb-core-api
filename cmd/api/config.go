@@ -58,7 +58,7 @@ func NewConfig() *Config {
 			MaxIdleTime:  utils.GetEnv("DB_MAX_IDLE_TIME", "15m"),
 		},
 		Service: ServiceConfig{
-			ProductAddr: utils.GetEnv("SERVICE_PRODUCT_ADDR", ":3031"),
+			ProductAddr: utils.GetEnv("PRODUCT_SERVICE_ADDR", "localhost:3031"),
 		},
 	}
 }

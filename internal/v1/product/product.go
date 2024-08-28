@@ -22,7 +22,7 @@ func (h *Handler) GetAllProducts(c *gin.Context) {
 	// TODO: remove placeholder user_id and use user_id from context instead
 	result, err := h.ProductService.GetProductsByUser(c, &product.GetProductsByUserReq{UserId: 1})
 	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
+		_ = c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"data": result})

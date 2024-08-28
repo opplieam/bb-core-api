@@ -17,6 +17,9 @@ spec:
               value: "cluster-dev"
             - name: DB_DSN # dev local db is not sensitive
               value: "postgresql://postgres:admin1234@host.minikube.internal:5433/buy-better-core?sslmode=disable"
+            - name: PRODUCT_SERVICE_ADDR
+              value: "host.minikube.internal:3031" # product-server use load balancer type
+#              value: "localhost:3031"
             - name: GOOGLE_CALLBACK
               value: "http://127.0.0.1:3030/v1/auth/google/callback"
             - name: TOKEN_ENCODED
