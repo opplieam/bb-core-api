@@ -12,10 +12,12 @@ import (
 	"github.com/opplieam/bb-core-api/internal/v1/auth"
 	"github.com/opplieam/bb-core-api/internal/v1/probe"
 	"github.com/opplieam/bb-core-api/internal/v1/product"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
+	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/grpc"
 )
 
-func setupRoutes(log *slog.Logger, db *sql.DB, grpcConn *grpc.ClientConn) *gin.Engine {
+func setupRoutes(log *slog.Logger, db *sql.DB, grpcConn *grpc.ClientConn, tc trace.Tracer) *gin.Engine {
 	var r *gin.Engine
 	if utils.GetEnv("WEB_SERVICE_ENV", "dev") == "dev" {
 		r = gin.Default()
@@ -33,6 +35,8 @@ func setupRoutes(log *slog.Logger, db *sql.DB, grpcConn *grpc.ClientConn) *gin.E
 
 	r.Use(middleware.SLogger(log, []string{"/v1/liveness", "/v1/readiness"}))
 
+	r.Use(otelgin.Middleware("bb-core-middleware"))
+
 	v1 := r.Group("/v1")
 
 	probeH := probe.NewHandler(build, store.NewHealthCheckStore(db))
@@ -49,7 +53,7 @@ func setupRoutes(log *slog.Logger, db *sql.DB, grpcConn *grpc.ClientConn) *gin.E
 	v1.GET("/auth/:provider/logout", authH.LogoutHandler)
 
 	// TODO: Add authorization middleware
-	productH := product.NewHandler(grpcConn)
+	productH := product.NewHandler(grpcConn, tc)
 	v1.GET("/product", productH.GetAllProducts)
 	return r
 }

@@ -12,6 +12,7 @@ import (
 
 	_ "github.com/joho/godotenv/autoload"
 	_ "github.com/lib/pq"
+	"go.opentelemetry.io/otel/trace"
 )
 
 var build = "dev"
@@ -29,6 +30,15 @@ func run(log *slog.Logger) error {
 	log.Info("start up", "GOMAXPROCS", runtime.GOMAXPROCS(0))
 	// Setup config
 	cfg := NewConfig()
+
+	// Setup Tracer
+	var tc trace.Tracer
+	tp, err := initTracerProvider()
+	if err != nil {
+		return err
+	}
+	tc = tp.Tracer("bb-core-api")
+
 	// Setup database
 	db, err := setupDB(cfg, log)
 	if err != nil {
@@ -44,7 +54,7 @@ func run(log *slog.Logger) error {
 	defer conn.Close()
 
 	// Setup routes
-	r := setupRoutes(log, db, conn)
+	r := setupRoutes(log, db, conn, tc)
 
 	shutdown := make(chan os.Signal, 1)
 	signal.Notify(shutdown, syscall.SIGINT, syscall.SIGTERM)
