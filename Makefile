@@ -9,6 +9,9 @@ dev-up:
 	minikube start
 	helm repo add bitnami-labs https://bitnami-labs.github.io/sealed-secrets/
 	helm install my-sealed-secrets bitnami-labs/sealed-secrets --version 2.16.2 --namespace kube-system
+	helm upgrade --install ingress-nginx ingress-nginx \
+  		--repo https://kubernetes.github.io/ingress-nginx \
+  		--namespace ingress-nginx --create-namespace
 	#kubectl apply -f ./k8s/secret/bitnami-sealed-secrets-v0.27.1.yaml
 
 dev-down:
@@ -53,12 +56,18 @@ docker-build-prod:
 
 kus-dev:
 	kubectl apply -k k8s/dev/
+helm-dev:
+	helm upgrade --install -f ./chart/dev.values.yaml bb-core-dev ./chart
 dev-restart:
 	kubectl rollout restart deployment $(DEPLOYMENT_NAME) --namespace=$(NAMESPACE)
 dev-stop:
 	kubectl delete -k k8s/dev/
+dev-helm-stop:
+	helm uninstall bb-core-dev
 
 dev-apply: tidy docker-build-dev kus-dev apply-secret dev-restart
+
+dev-apply-helm: tidy docker-build-dev helm-dev apply-secret dev-restart
 
 # ------------------------------------------------------------
 # Seal secret
