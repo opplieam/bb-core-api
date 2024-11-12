@@ -7,7 +7,9 @@ tidy:
 
 dev-up:
 	minikube start
-	kubectl apply -f ./k8s/secret/bitnami-sealed-secrets-v0.27.1.yaml
+	helm repo add bitnami-labs https://bitnami-labs.github.io/sealed-secrets/
+	helm install my-sealed-secrets bitnami-labs/sealed-secrets --version 2.16.2 --namespace kube-system
+	#kubectl apply -f ./k8s/secret/bitnami-sealed-secrets-v0.27.1.yaml
 
 dev-down:
 	minikube delete
@@ -61,11 +63,11 @@ dev-apply: tidy docker-build-dev kus-dev apply-secret dev-restart
 # ------------------------------------------------------------
 # Seal secret
 apply-seal-controller:
-	kubectl apply -f ./k8s/secret/bitnami-sealed-secrets-v0.27.1.yaml
+	helm upgrade --install my-sealed-secrets bitnami-labs/sealed-secrets --version 2.16.2 --namespace kube-system
 seal-fetch-cert:
-	kubeseal --fetch-cert > ./k8s/secret/dev/publickey.pem
+	kubeseal --controller-name my-sealed-secrets --fetch-cert > ./k8s/secret/dev/publickey.pem
 seal-secret:
-	kubeseal --cert ./k8s/secret/dev/publickey.pem < ./k8s/secret/dev/encoded-secret.yaml > ./k8s/secret/dev/sealed-env-dev.yaml
+	kubeseal --controller-name my-sealed-secrets --cert ./k8s/secret/dev/publickey.pem < ./k8s/secret/dev/encoded-secret.yaml > ./k8s/secret/dev/sealed-env-dev.yaml
 apply-seal:
 	kubectl apply -f ./k8s/secret/dev/sealed-env-dev.yaml
 
