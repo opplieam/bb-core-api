@@ -66,7 +66,7 @@ jobs:
         env:
           API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
         with:
-          source-directory: ".genmanifest"
+          source-directory: ".genmanifest/bb-core-api-chart"
           target-directory: "bb-core-api"
           destination-github-username: "opplieam"
           destination-repository-name: "bb-k8s-infra"
