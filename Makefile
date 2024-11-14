@@ -6,7 +6,7 @@ tidy:
 	go mod tidy
 
 dev-up:
-	minikube start
+	minikube start --memory 5000 --cpus 2
 	helm repo add bitnami-labs https://bitnami-labs.github.io/sealed-secrets/
 	helm install my-sealed-secrets bitnami-labs/sealed-secrets --version 2.16.2 --namespace kube-system
 	helm upgrade --install ingress-nginx ingress-nginx \
@@ -118,6 +118,10 @@ dev-db-reset: dev-db-down sleep-1 dev-db-up
 jet-gen:
 	jet -dsn=$(DB_DSN) -path=./.gen
 
+# ------------------------------------------------------------
+
+test-unit:
+	go test ./... -short
 
 # ------------------------------------------------------------
 # Helper function
