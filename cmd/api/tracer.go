@@ -11,7 +11,6 @@ import (
 
 func initTracerProvider() (*sdktrace.TracerProvider, error) {
 	// Initialize Jaeger Exporter
-	// TODO: Change address for minikube
 	exporter, err := jaeger.New(jaeger.WithCollectorEndpoint())
 	if err != nil {
 		return nil, err

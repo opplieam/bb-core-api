@@ -3,6 +3,8 @@ package main
 import (
 	"database/sql"
 	"log/slog"
+	"net/http"
+	"slices"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -32,10 +34,13 @@ func setupRoutes(log *slog.Logger, db *sql.DB, grpcConn *grpc.ClientConn, tc tra
 	corsConfig.AllowCredentials = true
 	corsConfig.AddAllowHeaders("Authorization")
 	r.Use(cors.New(corsConfig))
+	filterPaths := []string{"/v1/liveness", "/v1/readiness"}
+	r.Use(middleware.SLogger(log, filterPaths))
 
-	r.Use(middleware.SLogger(log, []string{"/v1/liveness", "/v1/readiness"}))
-
-	r.Use(otelgin.Middleware("bb-core-middleware"))
+	f := func(req *http.Request) bool {
+		return !slices.Contains(filterPaths, req.URL.Path)
+	}
+	r.Use(otelgin.Middleware("bb-core-middleware", otelgin.WithFilter(f)))
 
 	v1 := r.Group("/v1")
 

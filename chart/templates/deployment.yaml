@@ -78,6 +78,8 @@ spec:
               value: {{ .Values.env.prodServiceAddr }}
             - name: GOOGLE_CALLBACK
               value: {{ .Values.env.googleCallback }}
+            - name: OTEL_EXPORTER_JAEGER_ENDPOINT
+              value: {{ .Values.env.jaegerEndpoint }}
             - name: TOKEN_ENCODED
               valueFrom:
                 secretKeyRef:

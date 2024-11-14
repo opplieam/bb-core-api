@@ -20,3 +20,4 @@ env:
   dbDSN: "postgresql://postgres:admin1234@host.minikube.internal:5433/buy-better-core?sslmode=disable"
   prodServiceAddr: "product-server-service.buy-better.svc.cluster.local:3031"
   googleCallback: "http://127.0.0.1:3030/v1/auth/google/callback"
+  jaegerEndpoint: "http://host.minikube.internal:14268/api/traces"
