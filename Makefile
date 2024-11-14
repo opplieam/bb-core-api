@@ -59,6 +59,12 @@ docker-push:
 
 docker-build-push: docker-build-prod docker-push
 
+gen-prod-chart:
+	rm -rf .genmanifest
+	helm template $(SERVICE_NAME) chart -f chart/dev.values.yaml \
+		--set image=$(SERVICE_IMAGE) \
+		--output-dir .genmanifest
+
 kus-dev:
 	kubectl apply -k k8s/dev/
 helm-dev:

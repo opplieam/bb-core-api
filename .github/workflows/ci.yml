@@ -53,6 +53,23 @@ jobs:
       - name: Push to Docker hub
         run: make docker-push
 
-      - name: echo Image name
-        run: echo "0.0.1-$(git rev-parse --short HEAD)"
+      - name: Install helm
+        uses: azure/setup-helm@v4.2.0
+        with:
+          version: 'v3.15.2'
+
+      - name: Gen manifest
+        run: make gen-prod-chart
+
+      - name: Pushes to another repository
+        uses: cpina/github-action-push-to-another-repository@main
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
+        with:
+          source-directory: ".genmanifest"
+          target-directory: "bb-core-api"
+          destination-github-username: "opplieam"
+          destination-repository-name: "bb-k8s-infra"
+          target-branch: "main"
+
 
