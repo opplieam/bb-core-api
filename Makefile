@@ -63,6 +63,7 @@ gen-prod-chart:
 	rm -rf .genmanifest
 	helm template $(SERVICE_NAME) chart -f chart/dev.values.yaml \
 		--set image=$(SERVICE_IMAGE) \
+		--set imagePullPolicy=Always
 		--output-dir .genmanifest
 
 kus-dev:
