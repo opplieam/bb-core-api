@@ -86,7 +86,7 @@ func run(log *slog.Logger) error {
 
 		if err := srv.Shutdown(ctx); err != nil {
 			_ = srv.Close()
-			return fmt.Errorf("could not shutdown gratefuly: %w", err)
+			return fmt.Errorf("cannot not shutdown gratefuly: %w", err)
 		}
 	}
 
