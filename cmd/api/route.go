@@ -15,11 +15,10 @@ import (
 	"github.com/opplieam/bb-core-api/internal/v1/probe"
 	"github.com/opplieam/bb-core-api/internal/v1/product"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
-	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/grpc"
 )
 
-func setupRoutes(log *slog.Logger, db *sql.DB, grpcConn *grpc.ClientConn, tc trace.Tracer) *gin.Engine {
+func setupRoutes(log *slog.Logger, db *sql.DB, grpcConn *grpc.ClientConn) *gin.Engine {
 	var r *gin.Engine
 	if utils.GetEnv("WEB_SERVICE_ENV", "dev") == "dev" {
 		r = gin.Default()
@@ -58,7 +57,7 @@ func setupRoutes(log *slog.Logger, db *sql.DB, grpcConn *grpc.ClientConn, tc tra
 	v1.GET("/auth/:provider/logout", authH.LogoutHandler)
 
 	// TODO: Add authorization middleware
-	productH := product.NewHandler(grpcConn, tc)
+	productH := product.NewHandler(grpcConn)
 	v1.GET("/product", productH.GetAllProducts)
 	return r
 }

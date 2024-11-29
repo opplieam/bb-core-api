@@ -5,6 +5,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/opplieam/bb-grpc/protogen/go/product"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/grpc"
 )
@@ -14,10 +16,10 @@ type Handler struct {
 	Tracer         trace.Tracer
 }
 
-func NewHandler(conn *grpc.ClientConn, tc trace.Tracer) *Handler {
+func NewHandler(conn *grpc.ClientConn) *Handler {
 	return &Handler{
 		ProductService: product.NewProductServiceClient(conn),
-		Tracer:         tc,
+		Tracer:         otel.GetTracerProvider().Tracer("Product"),
 	}
 }
 
@@ -26,7 +28,9 @@ func (h *Handler) GetAllProducts(c *gin.Context) {
 	ctx, span := h.Tracer.Start(c.Request.Context(), "GetAllProducts")
 	defer span.End()
 
-	result, err := h.ProductService.GetProductsByUser(ctx, &product.GetProductsByUserReq{UserId: 1})
+	userID := 1
+	span.SetAttributes(attribute.Int("user_id", userID))
+	result, err := h.ProductService.GetProductsByUser(ctx, &product.GetProductsByUserReq{UserId: uint32(userID)})
 	if err != nil {
 		_ = c.AbortWithError(http.StatusInternalServerError, err)
 		return
