@@ -61,22 +61,23 @@ docker-build-push: docker-build-prod docker-push
 
 gen-prod-chart:
 	rm -rf .genmanifest
-	helm template $(SERVICE_NAME) chart -f chart/dev.values.yaml \
+	helm template $(SERVICE_NAME) chart -f chart/values.yaml \
 		--set image=$(SERVICE_IMAGE) \
 		--set imagePullPolicy=Always \
+		--set env.webService=prod \
 		--output-dir .genmanifest
 
 helm-prod:
-	helm upgrade --install -f ./chart/prod.values.yaml \
+	helm upgrade --install -f ./chart/values.yaml \
 	--set image=$(SERVICE_IMAGE) \
 	--set imagePullPolicy=Always \
-	--set ingressClassName=gce \
+	--set env.webService=prod \
 	bb-core-api ./chart
 
 kus-dev:
 	kubectl apply -k k8s/dev/
 helm-dev:
-	helm upgrade --install -f ./chart/dev.values.yaml bb-core-api ./chart
+	helm upgrade --install -f ./chart/values.yaml bb-core-api ./chart
 dev-restart:
 	kubectl rollout restart deployment $(DEPLOYMENT_NAME) --namespace=$(NAMESPACE)
 dev-stop:
