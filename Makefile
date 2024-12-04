@@ -8,7 +8,7 @@ tidy:
 dev-up:
 	minikube start --memory 5000 --cpus 2
 	helm repo add bitnami-labs https://bitnami-labs.github.io/sealed-secrets/
-	helm install my-sealed-secrets bitnami-labs/sealed-secrets --version 2.16.2 --namespace kube-system
+	helm install bb-sealed-secrets bitnami-labs/sealed-secrets --version 2.16.2 --namespace kube-system
 	helm upgrade --install ingress-nginx ingress-nginx \
   		--repo https://kubernetes.github.io/ingress-nginx \
   		--namespace ingress-nginx --create-namespace
@@ -69,30 +69,37 @@ gen-prod-chart:
 kus-dev:
 	kubectl apply -k k8s/dev/
 helm-dev:
-	helm upgrade --install -f ./chart/dev.values.yaml bb-core-dev ./chart
+	helm upgrade --install -f ./chart/dev.values.yaml bb-core-api ./chart
 dev-restart:
 	kubectl rollout restart deployment $(DEPLOYMENT_NAME) --namespace=$(NAMESPACE)
 dev-stop:
 	kubectl delete -k k8s/dev/
 dev-helm-stop:
-	helm uninstall bb-core-dev
+	helm uninstall bb-core-api
 
-dev-apply: tidy docker-build-dev kus-dev apply-secret dev-restart
+dev-apply: tidy docker-build-dev kus-dev apply-secret-dev dev-restart
 
-dev-apply-helm: tidy docker-build-dev helm-dev apply-secret dev-restart
+dev-apply-helm: tidy docker-build-dev helm-dev apply-secret-dev dev-restart
 
 # ------------------------------------------------------------
 # Seal secret
 apply-seal-controller:
-	helm upgrade --install my-sealed-secrets bitnami-labs/sealed-secrets --version 2.16.2 --namespace kube-system
-seal-fetch-cert:
-	kubeseal --controller-name my-sealed-secrets --fetch-cert > ./k8s/secret/dev/publickey.pem
-seal-secret:
-	kubeseal --controller-name my-sealed-secrets --cert ./k8s/secret/dev/publickey.pem < ./k8s/secret/dev/encoded-secret.yaml > ./k8s/secret/dev/sealed-env-dev.yaml
-apply-seal:
+	helm upgrade --install bb-sealed-secrets bitnami-labs/sealed-secrets --version 2.16.2 --namespace kube-system
+seal-fetch-cert-dev:
+	kubeseal --controller-name bb-sealed-secrets --fetch-cert > ./k8s/secret/dev/publickey.pem
+seal-fetch-cert-prod:
+	kubeseal --controller-name bb-sealed-secrets --fetch-cert > ./k8s/secret/prod/publickey.pem
+seal-secret-dev:
+	kubeseal --controller-name bb-sealed-secrets --cert ./k8s/secret/dev/publickey.pem < ./k8s/secret/dev/encoded-secret-dev.yaml > ./k8s/secret/dev/sealed-env-dev.yaml
+seal-secret-prod:
+	kubeseal --controller-name bb-sealed-secrets --cert ./k8s/secret/prod/publickey.pem < ./k8s/secret/prod/encoded-secret-prod.yaml > ./k8s/secret/prod/sealed-env-prod.yaml
+apply-seal-dev:
 	kubectl apply -f ./k8s/secret/dev/sealed-env-dev.yaml
+apply-seal-prod:
+	kubectl apply -f ./k8s/secret/prod/sealed-env-prod.yaml
 
-apply-secret: seal-fetch-cert seal-secret apply-seal
+apply-secret-dev: seal-fetch-cert-dev seal-secret-dev apply-seal-dev
+apply-secret-prod: seal-fetch-cert-prod seal-secret-prod apply-seal-prod
 
 # ------------------------------------------------------------
 # DB
