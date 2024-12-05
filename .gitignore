@@ -32,11 +32,11 @@ bin
 .idea
 
 # Seal secret
-k8s/secret/dev/encoded-secret*.yaml
-k8s/secret/dev/publickey.pem
+deploy/secrets/dev/encoded-secret*.yaml
+deploy/secrets/dev/publickey.pem
 
-k8s/secret/prod/encoded-secret*.yaml
-k8s/secret/prod/publickey.pem
+deploy/secrets/prod/encoded-secret*.yaml
+deploy/secrets/prod/publickey.pem
 
 # genmanifest
 .genmanifest

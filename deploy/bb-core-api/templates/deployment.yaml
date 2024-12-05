@@ -1,53 +1,38 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: core-api-deployment
-  namespace: buy-better
-
+  name: {{ include "bb-core-api.fullname" . }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "bb-core-api.labels" . | nindent 4 }}
 spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
   selector:
     matchLabels:
-      app: core-api
-  replicas: {{ .Values.replicas }}
+      {{- include "bb-core-api.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-      labels:
-        app: core-api
+      name: {{ include "bb-core-api.fullname" . }}
+      labels: {{- include "bb-core-api.labels" . | nindent 8 }}
     spec:
-      terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
-        - name: core-api
-          image: {{ .Values.image }}
-          imagePullPolicy: {{ .Values.imagePullPolicy }}
-          resources:
-            requests:
-              cpu: {{ .Values.resource.cpuRequest }}
-            limits:
-              cpu: {{ .Values.resource.cpuLimit }}
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - name: core-api-port
-              containerPort: 3030
-
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
           livenessProbe:
-            httpGet:
-              path: /v1/liveness
-              port: 3030
-            initialDelaySeconds: {{ .Values.livenessInitialDelaySeconds }}
-            periodSeconds: {{ .Values.livenessPeriodSeconds }}
-            timeoutSeconds: 5
-            successThreshold: 1
-            failureThreshold: 4
-
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
           readinessProbe:
-            httpGet:
-              path: /v1/readiness
-              port: 3030
-            initialDelaySeconds: {{ .Values.readinessInitialDelaySeconds }}
-            periodSeconds: {{ .Values.readinessPeriodSeconds }}
-            timeoutSeconds: 5
-            successThreshold: 1
-            failureThreshold: 4
-
+            {{- toYaml .Values.readinessProbe | nindent 12 }}
           env:
             - name: GOMAXPROCS
               valueFrom:

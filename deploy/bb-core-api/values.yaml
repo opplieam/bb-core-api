@@ -1,0 +1,77 @@
+# Default values for bb-core-api.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# Namespace
+namespace: buy-better
+
+# Service
+service:
+  type: ClusterIP
+  port: 3030
+
+# Autoscaling
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 90
+#  targetMemoryUtilizationPercentage: 90
+
+replicaCount: 1
+
+# Container Image
+image:
+  repository: opplieam/bb-core-api
+  pullPolicy: Never
+  tag: "cluster-dev"
+
+imagePullSecrets: []
+
+# Environment
+env:
+  webService: "cluster-dev"
+  prodServiceAddr: "bb-product-server.buy-better.svc.cluster.local:3031"
+  googleCallback: "http://127.0.0.1:3030/v1/auth/google/callback"
+  jaegerEndpoint: "http://host.minikube.internal:14268/api/traces"
+
+
+# liveness Probe
+livenessProbe:
+  httpGet:
+    path: /v1/liveness
+    port: http
+  initialDelaySeconds: 2
+  periodSeconds: 5
+  timeoutSeconds: 5
+  successThreshold: 1
+  failureThreshold: 4
+
+# Readiness Probe
+readinessProbe:
+  httpGet:
+    path: /v1/readiness
+    port: http
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  timeoutSeconds: 5
+  successThreshold: 1
+  failureThreshold: 4
+
+
+ingress:
+  enabled: true
+  className: nginx
+  host: "bb-core.localhost"
+  paths:
+    - path: /
+      pathType: Prefix
+      servicePort: 3030
+
+certManager:
+  enabled: false
+
+
+
+
+
